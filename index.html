@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="/userProtect.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VideoFix - Crop Fix Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #f8f9fb;
+            --bg-primary: #ffffff;
+            --bg-elevated: #f1f3f6;
+            --bg-surface: #e8ebf0;
+            --bg-hover: #dfe3e9;
+            --border-subtle: #d0d5dd;
+            --border-strong: #b8c0cc;
+            --text-primary: #1a1d24;
+            --text-secondary: #5a6170;
+            --text-muted: #8891a0;
+            --accent-cyan: #0088cc;
+            --accent-cyan-dim: #006699;
+            --accent-cyan-glow: rgba(0, 136, 204, 0.2);
+            --accent-amber: #e69500;
+            --accent-amber-dim: #cc8400;
+            --accent-amber-glow: rgba(230, 149, 0, 0.2);
+            --accent-green: #00aa66;
+            --accent-green-dim: #008855;
+            --accent-red: #dd3355;
+            --gradient-shimmer: linear-gradient(135deg, var(--accent-cyan) 0%, #00aa66 50%, var(--accent-cyan) 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-green) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px var(--accent-cyan-glow);
+        }
+
+        .logo-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: #ffffff;
+            stroke: #ffffff;
+        }
+
+        .logo-text {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: var(--gradient-shimmer);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+
+        .header-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .btn-populate {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            padding: 12px 24px;
+            background: var(--accent-green);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-populate:hover {
+            background: var(--accent-green-dim);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 170, 102, 0.3);
+        }
+
+        .btn-populate:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Search Section */
+        .search-section {
+            max-width: 700px;
+            margin: 0 auto 40px;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-wrapper {
+            position: relative;
+            display: flex;
+            gap: 0;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .search-wrapper:focus-within {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 4px var(--accent-cyan-glow), 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+
+        .search-wrapper:focus-within .search-icon {
+            color: var(--accent-cyan);
+        }
+
+        .search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 18px 20px 18px 52px;
+            font-size: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-cyan-dim) 100%);
+            border: none;
+            padding: 18px 32px;
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-btn:hover {
+            background: linear-gradient(135deg, var(--accent-cyan-dim) 0%, var(--accent-cyan) 100%);
+            transform: scale(1.02);
+        }
+
+        .search-btn:active {
+            transform: scale(0.98);
+        }
+
+        .search-hint {
+            text-align: center;
+            margin-top: 12px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-elevated);
+            padding: 6px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 14px 20px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .tab:hover:not(.active) {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+
+        .tab.active {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .tab-icon {
+            width: 18px;
+            height: 18px;
+            opacity: 0.7;
+        }
+
+        .tab.active .tab-icon {
+            opacity: 1;
+        }
+
+        .tab-badge {
+            background: var(--bg-hover);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .tab.active .tab-badge {
+            background: var(--accent-cyan);
+            color: #ffffff;
+        }
+
+        .tab[data-tab="unresolved"] .tab-badge {
+            background: var(--accent-amber-glow);
+            color: var(--accent-amber);
+        }
+
+        .tab[data-tab="unresolved"].active .tab-badge {
+            background: var(--accent-amber);
+            color: #ffffff;
+        }
+
+        .tab[data-tab="resolved"] .tab-badge {
+            background: rgba(0, 170, 102, 0.15);
+            color: var(--accent-green);
+        }
+
+        .tab[data-tab="resolved"].active .tab-badge {
+            background: var(--accent-green);
+            color: #ffffff;
+        }
+
+        /* Content Panel */
+        .panel {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .results-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Table Styles */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .results-table th {
+            text-align: left;
+            padding: 16px 20px;
+            background: var(--bg-elevated);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .results-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: middle;
+        }
+
+        .results-table tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        .results-table tbody tr:hover {
+            background: var(--bg-elevated);
+        }
+
+        .results-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Video Preview */
+        .video-preview {
+            position: relative;
+            width: 260px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-surface);
+            cursor: pointer;
+            border: 2px solid var(--border-subtle);
+            transition: all 0.3s ease;
+        }
+
+        .video-preview::before,
+        .video-preview::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--accent-cyan);
+            opacity: 0.5;
+            z-index: 2;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-preview::before {
+            top: 4px;
+            left: 4px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .video-preview::after {
+            bottom: 4px;
+            right: 4px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .video-row:hover .video-preview {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px var(--accent-cyan-glow);
+        }
+
+        .video-row:hover .video-preview::before,
+        .video-row:hover .video-preview::after {
+            opacity: 1;
+        }
+
+        .video-preview .thumbnail {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: opacity 0.2s ease;
+        }
+
+        .video-preview .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .video-row:hover .video-preview .thumbnail {
+            opacity: 0;
+        }
+
+        .video-row:hover .video-preview .video-overlay {
+            opacity: 1;
+        }
+
+        .video-preview .play-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .video-row:hover .video-preview .play-indicator {
+            opacity: 1;
+        }
+
+        .play-indicator svg {
+            width: 16px;
+            height: 16px;
+            fill: #ffffff;
+            margin-left: 2px;
+        }
+
+        /* File name */
+        .m-file {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: var(--bg-surface);
+            padding: 6px 10px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        /* Date */
+        .date-text {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-icon {
+            width: 12px;
+            height: 12px;
+        }
+
+        .badge-secondary {
+            background: var(--bg-surface);
+            color: var(--text-muted);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .badge-pending {
+            background: var(--accent-amber-glow);
+            color: var(--accent-amber);
+            border: 1px solid rgba(255, 184, 0, 0.3);
+            animation: pulse-amber 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-amber {
+            0%, 100% { box-shadow: 0 0 0 0 transparent; }
+            50% { box-shadow: 0 0 12px var(--accent-amber-glow); }
+        }
+
+        .badge-success {
+            background: rgba(0, 255, 136, 0.12);
+            color: var(--accent-green);
+            border: 1px solid rgba(0, 255, 136, 0.25);
+        }
+
+        .badge-info {
+            background: rgba(0, 212, 255, 0.12);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 212, 255, 0.25);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-icon {
+            width: 14px;
+            height: 14px;
+        }
+
+        .btn-fix {
+            background: transparent;
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+        }
+
+        .btn-fix:hover:not(:disabled) {
+            background: var(--accent-cyan);
+            color: #ffffff;
+            box-shadow: 0 0 20px var(--accent-cyan-glow);
+            transform: translateY(-1px);
+        }
+
+        .btn-fix:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-pending {
+            background: var(--accent-amber-glow);
+            color: var(--accent-amber);
+            border: 1px solid rgba(255, 184, 0, 0.3);
+        }
+
+        .btn-fixed {
+            background: rgba(0, 255, 136, 0.12);
+            color: var(--accent-green);
+            border: 1px solid rgba(0, 255, 136, 0.25);
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 80px 40px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            opacity: 0.3;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .empty-text {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Loading State */
+        .loading-row td {
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--bg-surface);
+            border-top-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .app-container {
+                padding: 24px 16px;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .results-table {
+                display: block;
+            }
+
+            .results-table thead {
+                display: none;
+            }
+
+            .results-table tbody {
+                display: block;
+            }
+
+            .results-table tr {
+                display: flex;
+                flex-wrap: wrap;
+                padding: 16px;
+                gap: 12px;
+                border-bottom: 1px solid var(--border-subtle);
+            }
+
+            .results-table td {
+                padding: 0;
+                border: none;
+            }
+
+            .video-preview {
+                width: 100%;
+                height: auto;
+            }
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        .pagination button {
+            padding: 6px 12px;
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: var(--bg-hover);
+            border-color: var(--accent-cyan);
+            color: var(--text-primary);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+
+        .pagination button.active {
+            background: var(--accent-cyan);
+            color: #fff;
+            border-color: var(--accent-cyan);
+        }
+
+        .pagination .page-info {
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+  <script src="/userProtect.js"></script>
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15.6 11.6L22 7v10l-6.4-4.6v-1z"/>
+                        <rect x="2" y="5" width="14" height="14" rx="2"/>
+                        <path d="M7 10l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <span class="logo-text">VideoFix</span>
+            </div>
+            <p class="header-subtitle">Crop Fix Manager</p>
+            <button class="btn-populate" id="populateBtn" onclick="populateFromLabels()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Populate from "GEBAAR UIT DE BEELD"
+            </button>
+        </header>
+
+        <!-- Search -->
+        <section class="search-section">
+            <div class="search-wrapper">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search by filename (e.g., M20251001_2313)">
+                <button class="search-btn" id="searchBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    Search
+                </button>
+            </div>
+            <p class="search-hint">Enter partial filename for wildcard matching</p>
+        </section>
+
+        <!-- Tabs -->
+        <section class="tabs-container">
+            <div class="tabs">
+                <button class="tab active" data-tab="search">
+                    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    Search Results
+                    <span class="tab-badge" id="searchCount">0</span>
+                </button>
+                <button class="tab" data-tab="unresolved">
+                    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12,6 12,12 16,14"/>
+                    </svg>
+                    Unresolved
+                    <span class="tab-badge" id="unresolvedCount">0</span>
+                </button>
+                <button class="tab" data-tab="resolved">
+                    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22,4 12,14.01 9,11.01"/>
+                    </svg>
+                    Resolved
+                    <span class="tab-badge" id="resolvedCount">0</span>
+                </button>
+            </div>
+
+            <!-- Search Results Panel -->
+            <div class="panel active" id="panel-search">
+                <div class="results-card">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 520px;">Files (L / M / R)</th>
+                                <th>Filename</th>
+                                <th>Date</th>
+                                <th>Crop Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="searchResultsBody">
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <circle cx="11" cy="11" r="8"/>
+                                            <path d="M21 21l-4.35-4.35"/>
+                                        </svg>
+                                        <p class="empty-title">Search for videos</p>
+                                        <p class="empty-text">Enter a filename to find matching records</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Unresolved Panel -->
+            <div class="panel" id="panel-unresolved">
+                <div class="results-card">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 520px;">Files (L / M / R)</th>
+                                <th>Filename</th>
+                                <th>Requested</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="unresolvedBody">
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state">
+                                        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                            <polyline points="22,4 12,14.01 9,11.01"/>
+                                        </svg>
+                                        <p class="empty-title">All clear</p>
+                                        <p class="empty-text">No pending crop fixes</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination" id="unresolvedPagination"></div>
+                </div>
+            </div>
+
+            <!-- Resolved Panel -->
+            <div class="panel" id="panel-resolved">
+                <div class="results-card">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 520px;">Files (L / M / R)</th>
+                                <th>Filename</th>
+                                <th>Requested</th>
+                                <th>Resolved</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resolvedBody">
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <rect x="2" y="3" width="20" height="14" rx="2"/>
+                                            <path d="M8 21h8M12 17v4"/>
+                                        </svg>
+                                        <p class="empty-title">No history yet</p>
+                                        <p class="empty-text">Resolved crop fixes will appear here</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination" id="resolvedPagination"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const API_URL = 'api.php';
+        const MEDIA_BASE_URL = 'https://media.signcollect.nl/';
+        const PAGE_SIZE = 30;
+
+        let unresolvedPage = 1;
+        let unresolvedData = [];
+        let resolvedPage = 1;
+        let resolvedData = [];
+
+        function renderPagination(containerId, totalItems, currentPage, onPageChange) {
+            const container = document.getElementById(containerId);
+            const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+            if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+            let html = `<button ${currentPage === 1 ? 'disabled' : ''} onclick="(${onPageChange})(${currentPage - 1})">&laquo; Prev</button>`;
+
+            const maxButtons = 7;
+            let start = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let end = Math.min(totalPages, start + maxButtons - 1);
+            if (end - start < maxButtons - 1) start = Math.max(1, end - maxButtons + 1);
+
+            if (start > 1) html += `<button onclick="(${onPageChange})(1)">1</button>`;
+            if (start > 2) html += `<span class="page-info">...</span>`;
+
+            for (let i = start; i <= end; i++) {
+                html += `<button class="${i === currentPage ? 'active' : ''}" onclick="(${onPageChange})(${i})">${i}</button>`;
+            }
+
+            if (end < totalPages - 1) html += `<span class="page-info">...</span>`;
+            if (end < totalPages) html += `<button onclick="(${onPageChange})(${totalPages})">${totalPages}</button>`;
+
+            html += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="(${onPageChange})(${currentPage + 1})">Next &raquo;</button>`;
+            html += `<span class="page-info">${currentPage} / ${totalPages}</span>`;
+            container.innerHTML = html;
+        }
+
+        // Convert m_file to media URL (remove .wav extension, use .MP4 for video)
+        function getMediaUrl(mFile, type = 'video') {
+            const baseName = mFile.replace(/\.(wav|WAV)$/, '');
+            const extension = type === 'video' ? '.mp4' : '.jpg';
+            return MEDIA_BASE_URL + baseName + extension;
+        }
+
+        // Format date for display
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) +
+                   ' · ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        // Create video preview element
+        function createVideoPreview(fileName, fileType, status) {
+            if (!fileName) {
+                return `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">${fileType.toUpperCase()}</div>
+                        <div style="font-size: 13px; color: var(--text-muted);">N/A</div>
+                    </div>
+                `;
+            }
+
+            const videoUrl = getMediaUrl(fileName, 'video');
+            const thumbUrl = getMediaUrl(fileName, 'thumbnail');
+
+            return `
+                <div style="text-align: center;">
+                    <div style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">${fileType.toUpperCase()}</div>
+                    <div class="video-preview" data-video-url="${videoUrl}">
+                        <img src="${thumbUrl}" class="thumbnail" alt="Thumbnail"
+                             onerror="this.src='';this.alt='No thumbnail'">
+                        <video class="video-overlay" muted loop preload="none">
+                            <source src="${videoUrl}" type="video/mp4">
+                        </video>
+                        <div class="play-indicator">
+                            <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+                        </div>
+                    </div>
+                    ${status ? createStatusBadge(status) : ''}
+                </div>
+            `;
+        }
+
+        // Create status badge
+        function createStatusBadge(status) {
+            if (!status) {
+                return '<span class="badge badge-secondary">No Fix Requested</span>';
+            }
+            if (status === 'resolved') {
+                return `<span class="badge badge-success">
+                    <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20,6 9,17 4,12"/>
+                    </svg>
+                    Resolved
+                </span>`;
+            }
+            return `<span class="badge badge-pending">
+                <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12,6 12,12 16,14"/>
+                </svg>
+                Pending
+            </span>`;
+        }
+
+        // Create rendered status badge
+        function createRenderedBadge(rendered) {
+            if (rendered === null || rendered === undefined) {
+                return '<span class="badge badge-secondary">Not Rendered</span>';
+            }
+            if (rendered == 2) {
+                return '<span class="badge badge-success">Cropped</span>';
+            }
+            if (rendered == 1) {
+                return '<span class="badge badge-info">Rendered</span>';
+            }
+            return '<span class="badge badge-secondary">-</span>';
+        }
+
+        // Create loading row
+        function createLoadingRow(colspan) {
+            return `<tr class="loading-row"><td colspan="${colspan}">
+                <div class="spinner"></div>
+                <p class="loading-text">Loading...</p>
+            </td></tr>`;
+        }
+
+        // Search function
+        async function search(query) {
+            if (!query.trim()) {
+                return;
+            }
+
+            const tbody = document.getElementById('searchResultsBody');
+            tbody.innerHTML = createLoadingRow(5);
+
+            try {
+                const response = await fetch(`${API_URL}?action=search&query=${encodeURIComponent(query)}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">
+                        <p class="empty-title" style="color: var(--accent-red);">${data.error}</p>
+                    </div></td></tr>`;
+                    return;
+                }
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">
+                        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="M21 21l-4.35-4.35"/>
+                            <path d="M8 8l6 6M14 8l-6 6"/>
+                        </svg>
+                        <p class="empty-title">No results found</p>
+                        <p class="empty-text">Try a different search term</p>
+                    </div></td></tr>`;
+                    document.getElementById('searchCount').textContent = '0';
+                    return;
+                }
+
+                document.getElementById('searchCount').textContent = data.length;
+
+                tbody.innerHTML = data.map((row, index) => {
+                    const hasAnyUnresolved = row.m_file_crop_status === 'unresolved' ||
+                                            row.l_file_crop_status === 'unresolved' ||
+                                            row.r_file_crop_status === 'unresolved';
+                    const allResolved = row.m_file_crop_status === 'resolved' &&
+                                       (!row.l_file || row.l_file_crop_status === 'resolved') &&
+                                       (!row.r_file || row.r_file_crop_status === 'resolved');
+                    const hasFixRequested = row.m_file_crop_status !== null ||
+                                           row.l_file_crop_status !== null ||
+                                           row.r_file_crop_status !== null;
+
+                    return `
+                        <tr style="animation: fadeIn 0.3s ease-out ${index * 0.05}s both;">
+                            <td>
+                                <div class="video-row" style="display: flex; gap: 16px; justify-content: center;">
+                                    ${createVideoPreview(row.l_file, 'L', row.l_file_crop_status)}
+                                    ${createVideoPreview(row.m_file, 'M', row.m_file_crop_status)}
+                                    ${createVideoPreview(row.r_file, 'R', row.r_file_crop_status)}
+                                </div>
+                            </td>
+                            <td><span class="m-file">${row.m_file}</span></td>
+                            <td><span class="date-text">${row.date || '-'}</span></td>
+                            <td>${allResolved ? createStatusBadge('resolved') : (hasAnyUnresolved ? createStatusBadge('unresolved') : createStatusBadge(null))}</td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                                    <button class="btn ${allResolved ? 'btn-fixed' : (hasAnyUnresolved ? 'btn-pending' : 'btn-fix')} fix-crop-btn"
+                                            data-mfile="${row.m_file}"
+                                            ${hasFixRequested ? 'disabled' : ''}>
+                                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            ${allResolved ?
+                                                '<polyline points="20,6 9,17 4,12"/>' :
+                                                (hasAnyUnresolved ?
+                                                    '<circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/>' :
+                                                    '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>')}
+                                        </svg>
+                                        ${hasAnyUnresolved ? 'Pending' : (allResolved ? 'Fixed' : 'Fix Crop')}
+                                    </button>
+                                    ${!hasFixRequested ? `<label style="display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-secondary); cursor: pointer;">
+                                        <input type="checkbox" class="oob-bottom-check" data-mfile="${row.m_file}" style="cursor: pointer;">
+                                        OOB: Bottom
+                                    </label>` : ''}
+                                    ${hasFixRequested ? `<button class="btn" style="font-size: 11px; padding: 4px 10px; color: var(--accent-red); border: 1px solid var(--accent-red); background: transparent;" onclick="resetCropFix('${row.m_file}', this)">Reset</button>` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                attachVideoHoverEvents();
+                attachFixCropEvents();
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">
+                    <p class="empty-title" style="color: var(--accent-red);">Error: ${error.message}</p>
+                </div></td></tr>`;
+            }
+        }
+
+        // Load unresolved fixes
+        async function loadUnresolved() {
+            const tbody = document.getElementById('unresolvedBody');
+            tbody.innerHTML = createLoadingRow(4);
+
+            try {
+                const response = await fetch(`${API_URL}?action=get_unresolved`);
+                unresolvedData = await response.json();
+                document.getElementById('unresolvedCount').textContent = unresolvedData.length;
+                unresolvedPage = 1;
+                renderUnresolvedPage(1);
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state">
+                    <p class="empty-title" style="color: var(--accent-red);">Error: ${error.message}</p>
+                </div></td></tr>`;
+            }
+        }
+
+        window.goUnresolvedPage = function(page) {
+            unresolvedPage = page;
+            renderUnresolvedPage(page);
+        };
+
+        function renderUnresolvedPage(page) {
+            const tbody = document.getElementById('unresolvedBody');
+            const data = unresolvedData;
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state">
+                    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22,4 12,14.01 9,11.01"/>
+                    </svg>
+                    <p class="empty-title">All clear</p>
+                    <p class="empty-text">No pending crop fixes</p>
+                </div></td></tr>`;
+                document.getElementById('unresolvedPagination').innerHTML = '';
+                return;
+            }
+
+            const start = (page - 1) * PAGE_SIZE;
+            const pageData = data.slice(start, start + PAGE_SIZE);
+
+            tbody.innerHTML = pageData.map((fix, index) => {
+                const filesMap = {};
+                if (fix.files && Array.isArray(fix.files)) {
+                    fix.files.forEach(fileEntry => {
+                        filesMap[fileEntry.type] = fileEntry;
+                    });
+                }
+
+                return `
+                    <tr style="animation: fadeIn 0.3s ease-out ${index * 0.05}s both;">
+                        <td>
+                            <div class="video-row" style="display: flex; gap: 16px; justify-content: center;">
+                                ${createVideoPreview(
+                                    filesMap['l_file']?.file,
+                                    'L',
+                                    filesMap['l_file']?.status
+                                )}
+                                ${createVideoPreview(
+                                    filesMap['m_file']?.file,
+                                    'M',
+                                    filesMap['m_file']?.status
+                                )}
+                                ${createVideoPreview(
+                                    filesMap['r_file']?.file,
+                                    'R',
+                                    filesMap['r_file']?.status
+                                )}
+                            </div>
+                        </td>
+                        <td><span class="m-file">${fix.m_file}</span></td>
+                        <td><span class="date-text">${formatDate(fix.requested_at)}</span></td>
+                        <td>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                ${fix.files && fix.files.map(f => `
+                                    <div style="font-size: 11px;">
+                                        <strong>${f.type.replace('_file', '').toUpperCase()}:</strong> ${createStatusBadge(f.status)}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            renderPagination('unresolvedPagination', data.length, page, 'goUnresolvedPage');
+            attachVideoHoverEvents();
+        }
+
+        // Load resolved fixes
+        async function loadResolved() {
+            const tbody = document.getElementById('resolvedBody');
+            tbody.innerHTML = createLoadingRow(5);
+
+            try {
+                const response = await fetch(`${API_URL}?action=get_resolved`);
+                resolvedData = await response.json();
+                document.getElementById('resolvedCount').textContent = resolvedData.length;
+                resolvedPage = 1;
+                renderResolvedPage(1);
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">
+                    <p class="empty-title" style="color: var(--accent-red);">Error: ${error.message}</p>
+                </div></td></tr>`;
+            }
+        }
+
+        window.goResolvedPage = function(page) {
+            resolvedPage = page;
+            renderResolvedPage(page);
+        };
+
+        function renderResolvedPage(page) {
+            const tbody = document.getElementById('resolvedBody');
+            const data = resolvedData;
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">
+                    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="2" y="3" width="20" height="14" rx="2"/>
+                        <path d="M8 21h8M12 17v4"/>
+                    </svg>
+                    <p class="empty-title">No history yet</p>
+                    <p class="empty-text">Resolved crop fixes will appear here</p>
+                </div></td></tr>`;
+                document.getElementById('resolvedPagination').innerHTML = '';
+                return;
+            }
+
+            const start = (page - 1) * PAGE_SIZE;
+            const pageData = data.slice(start, start + PAGE_SIZE);
+
+            tbody.innerHTML = pageData.map((fix, index) => {
+                const filesMap = {};
+                if (fix.files && Array.isArray(fix.files)) {
+                    fix.files.forEach(fileEntry => {
+                        filesMap[fileEntry.type] = fileEntry;
+                    });
+                }
+
+                let latestResolved = null;
+                if (fix.files && Array.isArray(fix.files)) {
+                    fix.files.forEach(f => {
+                        if (f.resolved_at && (!latestResolved || new Date(f.resolved_at) > new Date(latestResolved))) {
+                            latestResolved = f.resolved_at;
+                        }
+                    });
+                }
+
+                return `
+                    <tr style="animation: fadeIn 0.3s ease-out ${index * 0.05}s both;">
+                        <td>
+                            <div class="video-row" style="display: flex; gap: 16px; justify-content: center;">
+                                ${createVideoPreview(
+                                    filesMap['l_file']?.file,
+                                    'L',
+                                    filesMap['l_file']?.status
+                                )}
+                                ${createVideoPreview(
+                                    filesMap['m_file']?.file,
+                                    'M',
+                                    filesMap['m_file']?.status
+                                )}
+                                ${createVideoPreview(
+                                    filesMap['r_file']?.file,
+                                    'R',
+                                    filesMap['r_file']?.status
+                                )}
+                            </div>
+                        </td>
+                        <td><span class="m-file">${fix.m_file}</span></td>
+                        <td><span class="date-text">${formatDate(fix.requested_at)}</span></td>
+                        <td><span class="date-text">${formatDate(latestResolved)}</span></td>
+                        <td>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                ${fix.files && fix.files.map(f => `
+                                    <div style="font-size: 11px;">
+                                        <strong>${f.type.replace('_file', '').toUpperCase()}:</strong> ${createStatusBadge(f.status)}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            renderPagination('resolvedPagination', data.length, page, 'goResolvedPage');
+            attachVideoHoverEvents();
+        }
+
+        // Add crop fix request
+        async function addCropFix(mFile, button, bottom = false) {
+            button.disabled = true;
+            const originalContent = button.innerHTML;
+            button.innerHTML = `<div class="spinner" style="width:14px;height:14px;margin:0;border-width:2px;"></div> Adding...`;
+
+            try {
+                const oob = { top: true, left: true, right: true, bottom: bottom };
+                const response = await fetch(`${API_URL}?action=add_fix`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ m_file: mFile, oob: oob })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    button.disabled = false;
+                    button.innerHTML = originalContent;
+                    return;
+                }
+
+                button.innerHTML = `<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/>
+                </svg> Pending`;
+                button.classList.remove('btn-fix');
+                button.classList.add('btn-pending');
+
+                loadUnresolved();
+            } catch (error) {
+                alert('Error: ' + error.message);
+                button.disabled = false;
+                button.innerHTML = originalContent;
+            }
+        }
+
+        // Reset/remove a crop fix so it can be resubmitted
+        async function resetCropFix(mFile, button) {
+            if (!confirm(`Reset crop fix for ${mFile}? This allows resubmission.`)) return;
+            button.disabled = true;
+            button.textContent = '...';
+
+            try {
+                const response = await fetch(`${API_URL}?action=remove_fix`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ m_file: mFile })
+                });
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    button.disabled = false;
+                    button.textContent = 'Reset';
+                    return;
+                }
+
+                // Re-run the current search to refresh the row
+                const query = document.getElementById('searchInput').value;
+                if (query.trim()) search(query);
+                loadCounts();
+            } catch (error) {
+                alert('Error: ' + error.message);
+                button.disabled = false;
+                button.textContent = 'Reset';
+            }
+        }
+
+        // Attach video hover events via event delegation - hovering a row plays all videos
+        function attachVideoHoverEvents() {
+            // no-op: handled by global delegation below
+        }
+
+        // Global event delegation for video rows (works after any DOM update)
+        document.addEventListener('mouseover', function(e) {
+            const row = e.target.closest('.video-row');
+            if (!row || row.dataset.playing) return;
+            row.dataset.playing = '1';
+            row.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
+        });
+
+        document.addEventListener('mouseout', function(e) {
+            const row = e.target.closest('.video-row');
+            if (!row) return;
+            // Check if we're still inside the row
+            if (row.contains(e.relatedTarget)) return;
+            delete row.dataset.playing;
+            row.querySelectorAll('video').forEach(v => {
+                v.pause();
+                v.currentTime = 0;
+            });
+        });
+
+        // Attach fix crop button events
+        function attachFixCropEvents() {
+            document.querySelectorAll('.fix-crop-btn:not([disabled])').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const mFile = this.dataset.mfile;
+                    const checkbox = document.querySelector(`.oob-bottom-check[data-mfile="${mFile}"]`);
+                    const bottom = checkbox ? checkbox.checked : false;
+                    addCropFix(mFile, this, bottom);
+                });
+            });
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.dataset.tab;
+
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+
+                this.classList.add('active');
+                document.getElementById(`panel-${tabName}`).classList.add('active');
+
+                if (tabName === 'unresolved') loadUnresolved();
+                if (tabName === 'resolved') loadResolved();
+            });
+        });
+
+        // Search events
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            const query = document.getElementById('searchInput').value;
+            search(query);
+        });
+
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = document.getElementById('searchInput').value;
+                search(query);
+            }
+        });
+
+        // Initial load of counts
+        async function loadCounts() {
+            try {
+                const [unresolved, resolved] = await Promise.all([
+                    fetch(`${API_URL}?action=get_unresolved`).then(r => r.json()),
+                    fetch(`${API_URL}?action=get_resolved`).then(r => r.json())
+                ]);
+                document.getElementById('unresolvedCount').textContent = Array.isArray(unresolved) ? unresolved.length : 0;
+                document.getElementById('resolvedCount').textContent = Array.isArray(resolved) ? resolved.length : 0;
+            } catch (error) {
+                console.error('Failed to load counts:', error);
+            }
+        }
+
+        // Populate from labels
+        async function populateFromLabels() {
+            const btn = document.getElementById('populateBtn');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<div class="spinner" style="width:14px;height:14px;margin:0;border-width:2px;"></div> Populating...`;
+
+            try {
+                const response = await fetch(`${API_URL}?action=populate_from_labels`);
+                const data = await response.json();
+
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert(data.message);
+                    // Refresh counts
+                    loadCounts();
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }
+        }
+
+        loadCounts();
+    </script>
+</body>
+</html>
