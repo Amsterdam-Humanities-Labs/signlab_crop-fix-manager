@@ -9,11 +9,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
+require_once __DIR__ . '/sc_paths.php';
+
+// The crop-fix queue is runtime state. It lives OUTSIDE the checkout, at
+// <webroot>/videofix_data/crop_fixes.json, so a redeploy (git reset --hard +
+// clean -fd) cannot revert or delete it. seed/crop_fixes.json is the copy that
+// used to be tracked here: a missing data file is seeded from it on first use;
+// an existing one is never touched.
+define('CROP_FIXES_FILE', sc_path('videofix_data', 'crop_fixes.json'));
+define('CROP_FIXES_SEED', __DIR__ . '/seed/crop_fixes.json');
+
+// .htaccess maps /videoFix/crop_fixes.json here: signlab_drs fetches that URL.
+// Answered before the DB config/connect, as the static file it replaces was.
+if (($_GET['action'] ?? '') === 'crop_fixes_json') {
+    echo json_encode(["fixes" => readCropFixes()], JSON_PRETTY_PRINT);
+    exit;
+}
+
 // Include database configuration
 require_once 'mysql_config.php';
-
-// JSON file path for crop fixes
-define('CROP_FIXES_FILE', __DIR__ . '/crop_fixes.json');
 
 // Create database connection
 $conn = new mysqli($servername, $username, $password, $database);
@@ -506,11 +520,13 @@ function populateFromLabels($conn) {
  * Read crop fixes from JSON file
  */
 function readCropFixes() {
-    if (!file_exists(CROP_FIXES_FILE)) {
+    cropFixesReady();
+    $file = file_exists(CROP_FIXES_FILE) ? CROP_FIXES_FILE : CROP_FIXES_SEED;
+    if (!file_exists($file)) {
         return [];
     }
 
-    $content = file_get_contents(CROP_FIXES_FILE);
+    $content = file_get_contents($file);
     $data = json_decode($content, true);
 
     if ($data === null || !isset($data['fixes'])) {
@@ -552,13 +568,32 @@ function readCropFixes() {
 }
 
 /**
+ * Create the data dir and seed the data file if missing. False when the dir
+ * cannot be created (reads then fall back to the seed, writes fail).
+ */
+function cropFixesReady() {
+    $dir = dirname(CROP_FIXES_FILE);
+    if (!is_dir($dir) && !@mkdir($dir, 0775, true)) {
+        error_log('videoFix: cannot create ' . $dir);
+        return false;
+    }
+    if (!file_exists(CROP_FIXES_FILE) && file_exists(CROP_FIXES_SEED)) {
+        @copy(CROP_FIXES_SEED, CROP_FIXES_FILE);
+    }
+    return true;
+}
+
+/**
  * Write crop fixes to JSON file with file locking
  */
 function writeCropFixes($fixes) {
     $data = ["fixes" => $fixes];
     $json = json_encode($data, JSON_PRETTY_PRINT);
 
-    $fp = fopen(CROP_FIXES_FILE, 'c');
+    if (!cropFixesReady()) {
+        return false;
+    }
+    $fp = @fopen(CROP_FIXES_FILE, 'c');
     if ($fp === false) {
         return false;
     }
