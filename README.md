@@ -6,7 +6,7 @@ Crop Fix Manager: a work queue of studio takes whose auto-crop cut the sign off,
 - A fix is keyed by the middle camera's `m_file` and covers `m_file`, `l_file`, `r_file`, each with its own status.
 - `api.php?action=`: `search`, `add_fix`/`remove_fix`, `get_unresolved`/`get_resolved`, `get_fixes`, `update_status` (render callback), `update_oob`, `populate_from_labels` (seeds from `form_data.labels LIKE '%GEBAAR UIT DE BEELD%'`).
 - State lives in `crop_fixes.json` (tracked in git, written under `flock`), not in the DB. `readCropFixes()` upgrades old entry shapes in place.
-- Render side: `signlab_drs/services/crop_fix.py` (and `tools/reprocess_all_fixes.py`) reads `/videoFix/crop_fixes.json`, re-crops, then calls `api.php?action=update_status`.
+- Render side: `signlab_drs/services/crop_fix.py` reads `/videoFix/crop_fixes.json`, re-crops, then calls `api.php?action=update_status`. `signlab_drs/tools/reprocess_all_fixes.py` re-renders every entry (read-only).
 
 ## Where it runs
 - Production VPS: `/web/videoFix`, https://signcollect.nl/videoFix/ (the signCollect-v2 menu links `/videoFix/`, so the path is fixed).
