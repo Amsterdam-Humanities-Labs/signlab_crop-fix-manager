@@ -19,7 +19,7 @@ require_once __DIR__ . '/sc_paths.php';
 define('CROP_FIXES_FILE', sc_path('videofix_data', 'crop_fixes.json'));
 define('CROP_FIXES_SEED', __DIR__ . '/seed/crop_fixes.json');
 
-// .htaccess maps /videoFix/crop_fixes.json here: signlab_drs fetches that URL.
+// .htaccess maps /videoFix/crop_fixes.json here: signlab_drs-pipeline fetches that URL.
 // Answered before the DB config/connect, as the static file it replaces was.
 if (($_GET['action'] ?? '') === 'crop_fixes_json') {
     echo json_encode(["fixes" => readCropFixes()], JSON_PRETTY_PRINT);
