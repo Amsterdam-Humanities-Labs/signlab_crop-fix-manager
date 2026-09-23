@@ -1,4 +1,4 @@
 # crop_fixes.json moved out of the checkout (see api.php). Keep its old URL,
-# which signlab_drs (services/crop_fix.py, tools/reprocess_all_fixes.py) reads.
+# which signlab_drs-pipeline (services/crop_fix.py, tools/reprocess_all_fixes.py) reads.
 RewriteEngine On
 RewriteRule ^crop_fixes\.json$ api.php?action=crop_fixes_json [L]

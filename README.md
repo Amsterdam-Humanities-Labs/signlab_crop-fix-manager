@@ -1,4 +1,4 @@
-# signlab_videoFix
+# signlab_crop-fix-manager
 Crop Fix Manager: a work queue of studio takes where the auto-crop cut off the sign. Each camera angle is tracked until it is rendered again.
 
 ## What it does
@@ -6,7 +6,7 @@ Crop Fix Manager: a work queue of studio takes where the auto-crop cut off the s
 - The middle camera's `m_file` is the key of a fix. A fix covers `m_file`, `l_file` and `r_file`, each with its own status.
 - `api.php?action=`: `search`, `add_fix`/`remove_fix`, `get_unresolved`/`get_resolved`, `get_fixes`, `update_status` (render callback), `update_oob` and `populate_from_labels`. The last one seeds the queue from `form_data.labels LIKE '%GEBAAR UIT DE BEELD%'`.
 - The queue lives in `<webroot>/videofix_data/crop_fixes.json`, outside the checkout and not in the database. `sc_paths.php` finds the path; writes happen under `flock`. A missing file is created from `seed/crop_fixes.json`. `readCropFixes()` upgrades old entries in place.
-- Render side, in [signlab_drs](https://github.com/Amsterdam-Humanities-Labs/signlab_drs): `services/crop_fix.py` reads `/videoFix/crop_fixes.json`, crops again and calls `api.php?action=update_status`. `.htaccess` rewrites that URL to `api.php?action=crop_fixes_json`. `tools/reprocess_all_fixes.py` renders every entry again and only reads the queue.
+- Render side, in [signlab_drs-pipeline](https://github.com/Amsterdam-Humanities-Labs/signlab_drs-pipeline): `services/crop_fix.py` reads `/videoFix/crop_fixes.json`, crops again and calls `api.php?action=update_status`. `.htaccess` rewrites that URL to `api.php?action=crop_fixes_json`. `tools/reprocess_all_fixes.py` renders every entry again and only reads the queue.
 
 ## Where it runs
 - Production: core server, `/web/videoFix`, <https://signcollect.nl/videoFix/>. The path is fixed, because the SignCollect menu links to `/videoFix/`.
@@ -16,7 +16,7 @@ Crop Fix Manager: a work queue of studio takes where the auto-crop cut off the s
 Production.
 
 ## How to run / deploy
-There is no build step. The stack deploys `main` (`repos.tsv` line `videoFix	signlab_videoFix	main`); see
+There is no build step. The stack deploys `main` (`repos.tsv` line `videoFix	signlab_crop-fix-manager	main`); see
 [signlab_signcollect-stack](https://github.com/Amsterdam-Humanities-Labs/signlab_signcollect-stack).
 The deploy must create `<webroot>/videofix_data/` (owner `www-data`, mode 2775). Before its `reset --hard`, it must move a live `videoFix/crop_fixes.json` there.
 
@@ -29,5 +29,5 @@ The deploy must create `<webroot>/videofix_data/` (owner `www-data`, mode 2775).
 ## Dependencies
 - MySQL `admin_gebarenoverleg`: reads `matched_transcriptions` and `form_data`, never writes.
 - `/userProtect.js` guards `index.html`. `api.php` has no login check and sends `Access-Control-Allow-Origin: *`.
-- The crop-fix service in signlab_drs (render side, above).
-- [signlab_zin](https://github.com/Amsterdam-Humanities-Labs/signlab_zin): `zinCrop/api.php` reads the queue file from disk. It falls back to the old `videoFix/crop_fixes.json` on a host that is not migrated yet.
+- The crop-fix service in signlab_drs-pipeline (render side, above).
+- [signlab_zinnen-annotation](https://github.com/Amsterdam-Humanities-Labs/signlab_zinnen-annotation): `zinCrop/api.php` reads the queue file from disk. It falls back to the old `videoFix/crop_fixes.json` on a host that is not migrated yet.
