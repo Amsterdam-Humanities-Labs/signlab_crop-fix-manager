@@ -38,3 +38,10 @@ The deploy must create `<webroot>/videofix_data/` (owner `www-data`, mode 2775).
 - `/userProtect.js` guards `index.html`. `api.php` checks the login (see Login) and sends `Access-Control-Allow-Origin: *`.
 - The crop-fix service in signlab_drs-pipeline (render side, above).
 - [signlab_zinnen-annotation](https://github.com/Amsterdam-Humanities-Labs/signlab_zinnen-annotation): `zinCrop/api.php` reads the queue file from disk. It falls back to the old `videoFix/crop_fixes.json` on a host that is not migrated yet.
+
+## License and citation
+
+Apache License 2.0, copyright University of Amsterdam: see [LICENSE](LICENSE) and
+[NOTICE](NOTICE). You may use it, also commercially, as long as you credit
+Gomer Otterspeer / University of Amsterdam as the source. To cite it, use
+[CITATION.cff](CITATION.cff) (the *Cite this repository* button on GitHub) or the DOI [10.21942/uva.33980323](https://doi.org/10.21942/uva.33980323).
