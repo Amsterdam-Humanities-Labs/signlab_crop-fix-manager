@@ -748,6 +748,9 @@
 </head>
 <body>
     <div class="app-container">
+        <div id="loginBanner" hidden style="margin: 16px 0; padding: 12px 16px; border: 1px solid var(--accent-red); border-radius: 8px; color: var(--accent-red); background: var(--bg-primary);">
+            You are not logged in. <a id="loginLink" href="/login.html">Log in first</a>, then reload this page.
+        </div>
         <!-- Header -->
         <header class="header">
   <script src="/userProtect.js"></script>
@@ -921,6 +924,19 @@
         const MEDIA_BASE_URL = 'https://media.signcollect.nl/';
         const PAGE_SIZE = 30;
 
+        // api.php answers 401 without a login session. Show a login link
+        // instead of failing on the JSON parse.
+        async function apiFetch(url, options) {
+            const response = await fetch(url, options);
+            if (response.status === 401) {
+                document.getElementById('loginLink').href =
+                    '/login.html?redirect=' + encodeURIComponent(window.location.href);
+                document.getElementById('loginBanner').hidden = false;
+                throw new Error('not logged in');
+            }
+            return response;
+        }
+
         let unresolvedPage = 1;
         let unresolvedData = [];
         let resolvedPage = 1;
@@ -1054,7 +1070,7 @@
             tbody.innerHTML = createLoadingRow(5);
 
             try {
-                const response = await fetch(`${API_URL}?action=search&query=${encodeURIComponent(query)}`);
+                const response = await apiFetch(`${API_URL}?action=search&query=${encodeURIComponent(query)}`);
                 const data = await response.json();
 
                 if (data.error) {
@@ -1143,7 +1159,7 @@
             tbody.innerHTML = createLoadingRow(4);
 
             try {
-                const response = await fetch(`${API_URL}?action=get_unresolved`);
+                const response = await apiFetch(`${API_URL}?action=get_unresolved`);
                 unresolvedData = await response.json();
                 document.getElementById('unresolvedCount').textContent = unresolvedData.length;
                 unresolvedPage = 1;
@@ -1234,7 +1250,7 @@
             tbody.innerHTML = createLoadingRow(5);
 
             try {
-                const response = await fetch(`${API_URL}?action=get_resolved`);
+                const response = await apiFetch(`${API_URL}?action=get_resolved`);
                 resolvedData = await response.json();
                 document.getElementById('resolvedCount').textContent = resolvedData.length;
                 resolvedPage = 1;
@@ -1337,7 +1353,7 @@
 
             try {
                 const oob = { top: true, left: true, right: true, bottom: bottom };
-                const response = await fetch(`${API_URL}?action=add_fix`, {
+                const response = await apiFetch(`${API_URL}?action=add_fix`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ m_file: mFile, oob: oob })
@@ -1373,7 +1389,7 @@
             button.textContent = '...';
 
             try {
-                const response = await fetch(`${API_URL}?action=remove_fix`, {
+                const response = await apiFetch(`${API_URL}?action=remove_fix`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ m_file: mFile })
@@ -1468,8 +1484,8 @@
         async function loadCounts() {
             try {
                 const [unresolved, resolved] = await Promise.all([
-                    fetch(`${API_URL}?action=get_unresolved`).then(r => r.json()),
-                    fetch(`${API_URL}?action=get_resolved`).then(r => r.json())
+                    apiFetch(`${API_URL}?action=get_unresolved`).then(r => r.json()),
+                    apiFetch(`${API_URL}?action=get_resolved`).then(r => r.json())
                 ]);
                 document.getElementById('unresolvedCount').textContent = Array.isArray(unresolved) ? unresolved.length : 0;
                 document.getElementById('resolvedCount').textContent = Array.isArray(resolved) ? resolved.length : 0;
@@ -1486,7 +1502,7 @@
             btn.innerHTML = `<div class="spinner" style="width:14px;height:14px;margin:0;border-width:2px;"></div> Populating...`;
 
             try {
-                const response = await fetch(`${API_URL}?action=populate_from_labels`);
+                const response = await apiFetch(`${API_URL}?action=populate_from_labels`);
                 const data = await response.json();
 
                 if (data.error) {

@@ -11,6 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . '/sc_paths.php';
 
+// Every action, crop_fixes_json included: a login session or X-Api-Token.
+require_once __DIR__ . '/require_auth.php';
+
 // The crop-fix queue is runtime state. It lives OUTSIDE the checkout, at
 // <webroot>/videofix_data/crop_fixes.json, so a redeploy (git reset --hard +
 // clean -fd) cannot revert or delete it. seed/crop_fixes.json is the copy that
